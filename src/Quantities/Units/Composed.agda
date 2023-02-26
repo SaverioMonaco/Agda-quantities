@@ -75,11 +75,9 @@ merge : (U W : 𝕌s) → 𝕌s
 merge U W = 𝕌s-simplify (merge-w/o-simplify U W)
   where
     merge-w/o-simplify : (U W : 𝕌s) → 𝕌s
-    merge-w/o-simplify I W = W
-    merge-w/o-simplify U I = U
-    merge-w/o-simplify (u · U) (w · W) with 𝕌sim u w
-    ... | false = w · (merge (u · U) W) 
-    ... | true  = insert (𝕌sum-exp u w) (merge U W)
+    merge-w/o-simplify  I       W = W
+    merge-w/o-simplify (u · U)  I = (u · U)
+    merge-w/o-simplify (u · U)  W = merge U (insert u W)
 
 -- Multiply every exponent in 𝕌s by a value q : ℚ
 -- Since q can be zero, 𝕌s-simplify will be applied
@@ -101,9 +99,11 @@ _𝕌s÷_ U q {n≢0}  with (ℚ1/ q) {n≢0}
 𝕌s-inv I = I
 𝕌s-inv (u · U) = (𝕌inv u {𝕌pos1 u}) · 𝕌s-inv U
 
--- Merge two 𝕌s into one, the second one is inverted
+-- Merge two 𝕌s into one, the second one is opposite
+-- This operation is required when dividing two physical
+-- quantities
 ÷-merge : (U V : 𝕌s) → 𝕌s
-÷-merge U V = merge U (𝕌s-inv V)
+÷-merge U V = merge U (_𝕌s*_ V (-[1+ 0 ] / 1))
 
 -------------------------
 -------------------------
