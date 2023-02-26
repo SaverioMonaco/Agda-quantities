@@ -4,6 +4,7 @@ open import Quantities.Units.SI.Base
 open import Data.Integer.Base
 open import Data.Bool.Base
 open import Data.Nat.Base
+open import Relation.Nullary.Decidable using (True)
 
 open import Data.Rational.Base renaming (NonZero to ℚNonZero; 1/_ to ℚ1/_; _*_ to _ℚ*_; _+_ to _ℚ+_; _-_ to _ℚ-_; _÷_ to _ℚ÷_)
 open import Data.String.Base using (String)
@@ -107,3 +108,4 @@ _𝕌s÷_ U q {n≢0}  with (ℚ1/ q) {n≢0}
 
 -------------------------
 -------------------------
+
