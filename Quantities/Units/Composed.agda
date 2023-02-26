@@ -30,7 +30,7 @@ data 𝕌s : Set where
 -- Example : m^0 does not mean anything
 -- While performing calculations, if we multiply m and m^(-1)
 -- we get m^0 while in reality is just an adimensional number
--- By contruction, units automatically removes any dimension
+-- By contruction, the Unit type automatically removes any dimension
 -- with a 0 exponent.
 -- This function will be used while combining Units
 𝕌-simplify : (u : 𝕌) → 𝕌
@@ -41,7 +41,7 @@ data 𝕌s : Set where
 
 𝕌s-simplify : (U : 𝕌s) → 𝕌s
 𝕌s-simplify I = I
-𝕌s-simplify (u · U) with ℕiszero (b𝕌.id (𝕌.base u))
+𝕌s-simplify (u · U) with ℕiszero (b𝕌.id-num (𝕌.base u))
   where
     ℕiszero : (n : ℕ) → Bool
     ℕiszero zero  = true
@@ -67,10 +67,6 @@ merge U I = 𝕌s-simplify U
 merge (u · U) (w · W) with 𝕌sim u w
 ... | false = w · (merge (u · U) W) 
 ... | true  = insert (𝕌sum-exp u w) (merge U W)
-
-𝕌-inverse : (u : 𝕌) → .{{_ : ℚNonZero (𝕌.expo u)}}  → 𝕌
-𝕌-inverse u with 𝕌.expo u
-...| exp = con𝕌 (𝕌.base u) (1/ exp )
 
 kg-1 : 𝕌; kg-1 = [ (kilo- g) ^ -[1+ 0 ] / 1 ]
 s+2  : 𝕌; s+2  = [ s         ^ +[1+ 1 ] / 1 ]
