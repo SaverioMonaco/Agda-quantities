@@ -125,6 +125,13 @@ record 𝕌 : Set where
       base : b𝕌
       expo : ℚ
 
+-- This postulate states that every exponent is not zero
+-- which is not technically true since it is possible to
+-- use con𝕌 to construct a Unit with 0 as exponent.
+-- However the following constructor [_^_] will avoid that
+-- as well as all the (following) operations.
+postulate 𝕌pos1 : (U : 𝕌) → ℤ.∣ ↥ 𝕌.expo U ∣ ≢0
+
 -- Constructor of the Unit type
 -- [ (base-u : b𝕌) ^ (expo : ℚ) ]
 -- It also checks wether the inputted exponent
