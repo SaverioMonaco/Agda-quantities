@@ -12,6 +12,16 @@ open import Relation.Binary.PropositionalEquality
   using (_≡_; _≢_; refl; subst; cong; cong₂; module ≡-Reasoning)
 open ≡-Reasoning
 
+-----------------------
+-- Helping Functions --
+-----------------------
+ℤiszero : (z : ℤ) → Bool
+ℤiszero (+0)       = true  --  0
+ℤiszero +[1+ n ]   = false -- +1, +2, +3, ...
+ℤiszero (-[1+_] n) = false -- -1, -2, -3, ...
+----------------------
+----------------------
+
 ------------------------------------
 -- - - - - BASE-UNIT TYPE - - - - --
 ------------------------------------
@@ -122,11 +132,6 @@ record 𝕌 : Set where
 -- the basic adimensional one 
 [_^_] : (base : b𝕌) (expo : ℚ) → 𝕌
 [_^_] base expo with (ℤiszero (ℚ.numerator expo))
-  where
-    ℤiszero : (z : ℤ) → Bool
-    ℤiszero (+0)       = true  --  0
-    ℤiszero +[1+ n ]   = false -- +1, +2, +3, ...
-    ℤiszero (-[1+_] n) = false -- -1, -2, -3, ...
 ...| true  = con𝕌 adim (+[1+ 0 ] / 1 )
 ...| false = con𝕌 base expo
 
@@ -174,26 +179,39 @@ record 𝕌 : Set where
 -- - - - - - - - OPERATIONS - - - - - - - -- 
 --------------------------------------------
 
+-- This function reduces a Unit into Adimensional
+-- in case that its exponent is 0
+-- Example : m^0 does not mean anything
+-- While performing calculations, if we multiply m and m^(-1)
+-- we get m^0 while in reality is just an adimensional number
+-- By contruction, the Unit type automatically removes any dimension
+-- with a 0 exponent.
+-- This function will be used while combining Units
+𝕌-simplify : (u : 𝕌) → 𝕌
+𝕌-simplify u  with ℤiszero (ℚ.numerator (𝕌.expo u) )
+...| true  = con𝕌 adim (+[1+ 0 ] / 1 )
+...| false = u
+
 -- 1. ADDITION
 -- (u : 𝕌) 𝕌+ (q : ℚ) → (w : 𝕌)
 -- Performs the addition of the exponent of
 -- the unit by a rational number
 _𝕌+_ : (u : 𝕌) → (q : ℚ) → 𝕌
-_𝕌+_ u q = con𝕌 (𝕌.base u) (𝕌.expo u ℚ+ q)
+_𝕌+_ u q = [_^_] (𝕌.base u) (𝕌.expo u ℚ+ q)
 
 -- 2. SUBTRACTION
 -- (u : 𝕌) 𝕌- (q : ℚ) → (w : 𝕌)
 -- Performs the subtraction of the exponent of
 -- the unit by a rational number
 _𝕌-_ : (u : 𝕌) → (q : ℚ) → 𝕌
-_𝕌-_ u q = con𝕌 (𝕌.base u) (𝕌.expo u ℚ- q)
+_𝕌-_ u q = [_^_] (𝕌.base u) (𝕌.expo u ℚ- q)
 
 -- 3. MULTIPLICATION
 -- (u : 𝕌) 𝕌× (q : ℚ) → (w : 𝕌)
 -- multiply the exponent of a Unit by a
 -- rational number
 _𝕌×_ : (u : 𝕌) → (q : ℚ) → 𝕌
-_𝕌×_ u q = con𝕌 (𝕌.base u) (𝕌.expo u ℚ* q)
+_𝕌×_ u q = [_^_] (𝕌.base u) (𝕌.expo u ℚ* q) 
 
 -- 4. DIVISION
 -- (u : 𝕌) 𝕌÷ (q : ℚ) → (w : 𝕌)
@@ -209,7 +227,18 @@ _𝕌÷_ u q {n≢0} with (ℚ1/ q) {n≢0}
 -- rational number
 𝕌inv : (u : 𝕌) → .{n≢0 : ℤ.∣ ↥ ( 𝕌.expo u ) ∣ ≢0} → 𝕌
 𝕌inv u {n≢0} with (ℚ1/ ( 𝕌.expo u )) {n≢0}
-...| 1/expo = con𝕌 (𝕌.base u) (1/expo)
+...| 1/expo = [_^_] (𝕌.base u) (1/expo)
 
+-- 6. SUM EXPONENTS
+-- 𝕌sum-exp (u : 𝕌) → (v : 𝕌) → (w : 𝕌)
+-- Creates a new Unit by summing the exponents.
+-- It is intended to be used internally by two
+-- Unit elements with the same base.
+-- However if the base is different the resultin
+-- type will be adimensional
+𝕌sum-exp : (u v : 𝕌) → 𝕌
+𝕌sum-exp u v with 𝕌sim u v
+...| true  = [_^_] (𝕌.base u) (( (𝕌.expo u) ℚ+ (𝕌.expo v) ))
+...| false = [_^_] (adim)      (( (𝕌.expo u) ℚ+ (𝕌.expo v) ))
 --------------------------------------------
 --------------------------------------------

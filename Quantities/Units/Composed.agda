@@ -8,15 +8,9 @@ open import Data.Nat.Base
 open import Relation.Binary.PropositionalEquality.Core
   using (_≡_; _≢_; refl)
 
-----------------------
--- Helping Function --
-----------------------
-ℤiszero : (z : ℤ) → Bool
-ℤiszero (+0)       = true  --  0
-ℤiszero +[1+ n ]   = false -- +1, +2, +3, ...
-ℤiszero (-[1+_] n) = false -- -1, -2, -3, ...
-----------------------
----------------------
+------------------------
+-- - - Units type - - --
+------------------------
 
 -- Composed Units, are list of Unit types.
 -- A composed unit is a unit with multiple SI units:
@@ -24,20 +18,6 @@ open import Relation.Binary.PropositionalEquality.Core
 data 𝕌s : Set where
   I : 𝕌s
   _·_ : 𝕌 → 𝕌s → 𝕌s
-
--- This function reduces a Unit into Adimensional
--- in case that its exponent is 0
--- Example : m^0 does not mean anything
--- While performing calculations, if we multiply m and m^(-1)
--- we get m^0 while in reality is just an adimensional number
--- By contruction, the Unit type automatically removes any dimension
--- with a 0 exponent.
--- This function will be used while combining Units
-𝕌-simplify : (u : 𝕌) → 𝕌
-𝕌-simplify u  with ℤiszero (ℚ.numerator (𝕌.expo u) )
-...| true  = con𝕌 adim (+[1+ 0 ] / 1 )
-...| false = u
-
 
 𝕌s-simplify : (U : 𝕌s) → 𝕌s
 𝕌s-simplify I = I
@@ -48,9 +28,6 @@ data 𝕌s : Set where
     ℕiszero (ℕ.suc n) = false
 ... | false = (𝕌-simplify u) · (𝕌s-simplify U)
 ... | true  = 𝕌s-simplify U
-
-𝕌sum-exp : (u w : 𝕌) → 𝕌
-𝕌sum-exp u w = 𝕌-simplify ( con𝕌 (𝕌.base u) ( (𝕌.expo u) ℚ+ (𝕌.expo w) ) )
 
 insert : (u : 𝕌) (U : 𝕌s) → 𝕌s
 insert u U = 𝕌s-simplify (𝕌→𝕌s-insert u U)
