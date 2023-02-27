@@ -2,7 +2,8 @@
 Type-safe physical computations in Agda.
 
 ---
-todo
+## Physical Quantity as Agda type:
+![scheme](https://raw.githubusercontent.com/SaverioMonaco/Agda-quantities/main/imgs/pq-scheme.svg)
 
 ---
 
