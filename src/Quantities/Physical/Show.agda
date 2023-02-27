@@ -2,7 +2,7 @@ module Quantities.Physical.Show where
 
 open import Quantities.Physical.Base
 open import Data.Nat
-open import Data.Rational
+open import Data.Rational renaming (show to deprecated-show)
 open import Data.Bool
 open import Data.Rational.Show using () renaming (show to ℚshow)
 open import Data.Integer.Show using () renaming (show to ℤshow)
@@ -14,8 +14,8 @@ open import Quantities.Units.Composed.Show using () renaming (show to show𝕌s)
 -- or as a ℤ,
 -- then it prints the dimension using the show function from
 -- Quantities.Units.Composed.Show
-showPQ : (pq : PQ) → String
-showPQ (conPQ number dimension) with denominator-is-one (number)
+show : (pq : PQ) → String
+show (conPQ number dimension) with denominator-is-one (number)
   where
     denominator-is-one : (q : ℚ) → Bool
     denominator-is-one q with (ℕisone (ℚ.denominatorℕ q) )

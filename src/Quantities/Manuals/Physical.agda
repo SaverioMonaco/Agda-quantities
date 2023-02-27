@@ -1,151 +1,93 @@
-module Quantities.Manuals.Units where
+module Quantities.Manuals.Physical where
 
--- Import the simple Units (No exponents)
 open import Quantities.Units.SI.Base
-open import Quantities.Units.SI.Show renaming (show to 𝕌-show)
-
--- Import the Units type (unit + exponent)
 open import Quantities.Units.Composed.Base
-open import Quantities.Units.Composed.Show renaming (show to 𝕌s-show)
 
--- Other
+-- Import the Physical Quantities modules
+open import Quantities.Physical.Base
+open import Quantities.Physical.Show renaming (show to PQshow)
+
+-- Import definitions of Units types (newton, area ...)
+open import Quantities.Units.Composed.Examples
+
+-- Import helping modules
 open import Data.Rational
 open import Data.Integer
 
------------------------------------------------------------------
--- - - - - - - - - - - UNIT TYPE (𝕌)  - - - - - - - - - - - - --
------------------------------------------------------------------
+---------------------------------------
+-- - PHYSICAL QUANTITIES TYPE (PQ) - --
+---------------------------------------
+-- How to construct a Physical Type
+number = -[1+ 19 ] / 32       -- -20/32 newton
+pq1    = number ×[ newton ]
+--                   ↑
+--                 Units (𝕌s)
 
--- How to Create a Unit type element (single simple quantity)
-Area = [ kilo- meter ^ (+[1+ 1 ] / 1) ]
-
--- The definition of Area would be : km²
--- To print it closer to our standard way we can use
--- the show function 𝕌-show:
-string-Area = 𝕌-show Area
--- Entering in Evaluation mode (Ctrl+c + Ctrl+n)
--- >> string-Area
--- "kilo-m^(2)"
-
--- The constructor [_^_] automatically transforms
--- a quantity to adimensional (adim) if the exponent is zero
-
-unit1 = [ mega- kelvin ^ 0ℚ ]
+-- The quantity can also be shown
+pq-string = PQshow pq1
+-- which can be displayed by typing pq-string in the
+-- evaluate tab
 -- Ctrl+c + Ctrl+n
--- >> 𝕌-show unit1
--- " ^(1)"
+-- >> pq-string
+-- "-5/8  [m^(1) kilo-g^(1) s^(-2) ]"
 
-unit2 = [ second ^ +[1+ 0 ] / 2 ]        -- s^½
-unit3 = [ second ^ +[1+ 0 ] / 1 ]        -- s
-unit4 = [ milli- second ^ +[1+ 0 ] / 2 ] -- milli-s^½
-unit5 = [ candela ^ +[1+ 1 ] / 1 ]       -- cd^2
+----------------
+-- EQUALITIES --
+----------------
+-- A function can tell if two physical quantities can be
+-- added together (when they share the same dimensions)
 
--- There are two equivalences between Unit types:
--- ----------------------------------------------
--- SIM: (𝕌sim) : (u : 𝕌) → (v : 𝕌) → Bool
--- 𝕌sim is:
---   > true:  if the base is the same
---              (regardless of the prefix)
---   > false: otherwise
---
+pq2 = 1ℚ ×[ pascal ]              -- 1 pascal
+pq3 = (-[1+ 0 ] / 12) ×[ pascal ] -- -1/12 pascal
+-- Takes two Physical Quantities. It returns
+--  > ⊥ if the two dimensions are NOT the same
+--  > ⊤ if the two dimensions are the same
+check1 = same-dimension pq2 pq3
+check2 = same-dimension pq1 pq2
 -- Ctrl+c + Ctrl+n
--- >> 𝕌sim unit2 unit3
--- true
--- >> 𝕌sim unit3 unit4
--- true
--- >> 𝕌sim unit2 unit5
--- false
--- ----------------------------------------------
--- EQ:  (𝕌eq) : (u : 𝕌) → (v : 𝕌) → Bool
--- 𝕌eq is:
---   > true:  if both the base and the exponent
---            are the same
---            (regardless of the prefix)
---   > false: otherwise
---
--- Ctrl+c + Ctrl+n
--- >> 𝕌eq unit2 unit3
--- false
--- >> 𝕌eq unit2 unit4
--- true
--- >> 𝕌eq unit2 unit5
--- false
--- ----------------------------------------------
+-- >> check1
+--    Agda.Builtin.Unit.⊤
+-- >> check2
+--    Data.Empty.⊥
 
--- The Operations between Units are:
--- 1. ADDITION (𝕌+) and SUBTRACTION (𝕌-)
-Lenght = [ meter ^ 1ℚ ]
-Area1  = Lenght 𝕌+ 1ℚ
--- Ctrl+c + Ctrl+n
--- >> 𝕌-show Area1
--- "m^(2)"
+----------------
+-- OPERATIONS --
+----------------
+a-length = (+[1+ 4 ] / 3)  ×[ [ meter ^ 1ℚ ]  · I ]
+a-time   = (+[1+ 29 ] / 1) ×[ [ second ^ 1ℚ ] · I ]
 
--- 2. MULTIPLICATION (𝕌×) and DIVISION (𝕌÷)
-Lenght1 = Area1 𝕌× (+[1+ 0 ] / 2)
--- Ctrl+c + Ctrl+n
--- >> 𝕌eq Lenght Lenght1
--- true
+-- 1. MUTLIPLICATION BETWEEN PQ
+a-length×time = a-length PQ× a-time
+-- >> PQshow a-length×time
+--    "50  [s^(1) m^(1) ]"
 
--- 3. INVERSION (𝕌inv)
-something = 𝕌inv Area1
--- Ctrl+c + Ctrl+n
--- >> 𝕌-show something
--- "m^(1/2)"
+-- 2. INVERSION OF A PQ
+a-frequency = PQ1/ a-time
+-- >> PQshow a-frequency
+--    "1/30  [s^(-1) ]"
 
------------------------------------------------------------------
--- - - - - - - - - - - UNITS TYPE (𝕌s)  - - - - - - - - - - - --
------------------------------------------------------------------
+-- 3. DIVISION BETWEEN PQ
+a-speed = a-length PQ÷ a-time
+-- >> PQshow a-speed
+--    "1/18  [s^(-1) m^(1) ]"
 
--- How to Create a Composed Unit type element (𝕌s)
--- N = kg · m · s²
-newton = [ (kilo- g) ^ 1ℚ ] · ( [ m ^ 1ℚ ] · ([ s ^ ( -[1+ 1 ] / 1 ) ] · I) )
+-- 4. ADDITION BETWEEN PQ
+another-time =  1ℚ ×[ [ second ^ 1ℚ ] · I ]
 
--- To show it:
--- Ctrl+c + Ctrl+n
--- >> 𝕌s-show newton
--- "kilo-g^(1) m^(1) s^(-2) "
+time-summed = a-time PQ+ another-time
+-- >> PQshow time-summed
+--    "31  [s^(1) ]"
 
--- Is it possible to insert a unit to a Units type by considering what
--- is inside the Units type.
--- When inserting a Unit into a Units, if the same unit is already
--- inside it, the exponents get summed.
--- This is the operation done when multiplying two physical quantities
--- together.
+-- 5. SUBTRACTION BETWEEN PQ
+time-subtracted = another-time PQ- a-time
+-- >> PQshow time-subtracted
+--    "-29  [s^(1) ]"
 
-s^3    = [ s ^ +[1+ 2 ] / 1 ]
-m^-3/2 = [ m ^ (-[1+ 2 ] / 2) ] 
+-- 6. Multiplication of a PQ with a number
+a-speed×3 = a-speed ℚPQ× (+[1+ 2 ] / 1)
+-- >> PQshow a-speed×3
+--    "1/6  [s^(-1) m^(1) ]"
 
-something-else = insert m^-3/2 (insert s^3 newton)
--- Ctrl+c + Ctrl+n
--- >> 𝕌s-show something-else
--- "kilo-g^(1) m^(-1/2) s^(1) "
-
--- There is a similar operation called merge,
--- between Units types (𝕌s)
--- This is related to the multiplication of physical quantities
-strange-quantity = [ s ^ +[1+ 6 ] / 2 ] · ([ m ^ (-[1+ 0 ] / 1) ] · I)
-something-elser  = merge newton strange-quantity
---               = ( kg m s^-2 ) (s^7/2 m^-1) = kg s^(7/2 -2) m^0 =
---               = kg s^(3/2)
--- Ctrl+c + Ctrl+n
--- >> 𝕌s-show something-elser
--- "s^(3/2) kilo-g^(1) "
-
--- There is aswell an operation related to the division of physical
--- quantities:
-nothing = ÷-merge newton newton
--- Ctrl+c + Ctrl+n
--- >> 𝕌s-show nothing
--- ""
-
--- MULTIPLICATION (𝕌s×) and DIVISION (𝕌s÷):
-newton√2 = newton 𝕌s÷ (+[1+ 1 ] / 1)
--- Ctrl+c + Ctrl+n
--- >> 𝕌s-show newton
--- "kilo-g^(1/2) m^(1/2) s^(-1) ""kilo-g^(1/2) m^(1/2) s^(-1) "
-
--- INVERSION:
-inv-newton = 𝕌s-inv newton
--- Ctrl+c + Ctrl+n
--- >> 𝕌s-show inv-newton
--- "kilo-g^(1) m^(1) s^(-1/2) "
+a-speed×3÷2 = a-speed×3 ℚPQ÷ (+[1+ 1 ] / 1)
+-- >> PQshow a-speed×3÷2
+--    "1/12  [s^(-1) m^(1) ]"
