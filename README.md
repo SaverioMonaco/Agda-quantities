@@ -7,7 +7,7 @@ todo
 ---
 
 ## How to run it
-This library depends on the [Agda-stdlib](https://github.com/agda/agda-stdlib), in particular with `agda-stdlib-1.7.1`.
+This library depends on the [Agda-stdlib](https://github.com/agda/agda-stdlib), in particular it was tested with `agda-stdlib-1.7.1`.
 
 1. Clone the repository to a directory `$REPODIR`
 ```bash
