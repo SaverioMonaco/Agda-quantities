@@ -1,8 +1,8 @@
-module Quantities.PhysicalQuantity where
+module Quantities.Physical.PhysicalQuantity where
 
-open import Quantities.Units.Composed as 𝕌s
+open import Quantities.Units.Composed.Composed as 𝕌s
 open import Data.Rational
-open import Quantities.Units.Composed-examples
+open import Quantities.Units.Composed.Composed-examples
 
 record PQ : Set where
   constructor conPQ

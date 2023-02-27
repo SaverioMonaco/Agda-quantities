@@ -1,4 +1,4 @@
-module Quantities.Units.Composed where
+module Quantities.Units.Composed.Composed where
 
 open import Quantities.Units.SI.Base
 open import Data.Integer.Base
