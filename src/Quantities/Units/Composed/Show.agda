@@ -1,7 +1,7 @@
 module Quantities.Units.Composed.Show where
 
 open import Quantities.Units.SI.Show using () renaming (show to show𝕌)
-open import Quantities.Units.Composed.Composed
+open import Quantities.Units.Composed.Base
 open import Data.String.Base using (String; _++_)
 
 -- show function for the Units type. It iteratively

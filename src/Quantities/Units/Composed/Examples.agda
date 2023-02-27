@@ -1,6 +1,6 @@
-module Quantities.Units.Composed.Composed-examples where
+module Quantities.Units.Composed.Examples where
 
-open import Quantities.Units.Composed.Composed
+open import Quantities.Units.Composed.Base
 open import Quantities.Units.SI.Base
 
 -- Other
