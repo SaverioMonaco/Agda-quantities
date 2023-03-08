@@ -11,14 +11,14 @@ open import Data.Integer
 area         = [ m ^ +[1+ 1 ] / 1 ] · I
 -- Volume = m^3
 volume       = [ m ^ +[1+ 2 ] / 1 ] · I
--- Density = kg/volume
-density      = insert [ kilo- g ^ 1ℚ ] (volume 𝕌s* (-[1+ 0 ] / 1) )
+-- Density = g/volume
+density      = insert [ g ^ 1ℚ ] (volume 𝕌s* (-[1+ 0 ] / 1) )
 -- Speed = m/s
 speed        = [ m ^ +[1+ 0 ] / 1 ] · ([ s ^ -[1+ 0 ] / 1 ] · I)
 -- Acceleration = m/s^2
 acceleration = [ m ^ +[1+ 0 ] / 1 ] · ([ s ^ -[1+ 1 ] / 1 ] · I)
 -- Newton = kg m / s^2
-newton       = [ m ^ 1ℚ ] · ([ kilo- g ^ 1ℚ ] · ([ s ^ -[1+ 1 ] / 1 ] · I))
+newton       = [ m ^ 1ℚ ] · ([ g ^ 1ℚ ] · ([ s ^ -[1+ 1 ] / 1 ] · I))
 -- Joule = N m
 joule        = insert [ m ^ 1ℚ ] newton
 -- Power = N m/s
