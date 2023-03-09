@@ -22,20 +22,20 @@ show u with denominator-is-one (𝕌.expo u)
         ℕisone (suc zero)    = true
         ℕisone (suc (suc n)) = false
     ...| bool = bool
-...| true  = Prefix.str (b𝕌.prefix (𝕌.base u)) ++  b𝕌.str (𝕌.base u)  ++ "^(" ++ showℤ (ℚ.numerator (𝕌.expo u) ) ++  ")"
-...| false = Prefix.str (b𝕌.prefix (𝕌.base u)) ++  b𝕌.str (𝕌.base u)  ++ "^(" ++ showℤ (ℚ.numerator (𝕌.expo u) ) ++  "/" ++ showℕ (ℚ.denominatorℕ (𝕌.expo u) ) ++ ")"
+...| true  = b𝕌.str (𝕌.base u)  ++ "^(" ++ showℤ (ℚ.numerator (𝕌.expo u) ) ++  ")"
+...| false = b𝕌.str (𝕌.base u)  ++ "^(" ++ showℤ (ℚ.numerator (𝕌.expo u) ) ++  "/" ++ showℕ (ℚ.denominatorℕ (𝕌.expo u) ) ++ ")"
 
 -- EXAMPLES:
--- ν    = [ (milli- s) ^ ( -[1+ 0 ] / 1) ]
+-- ν    = [ (s) ^ ( -[1+ 0 ] / 1) ]
 -- >> show ν
--- "milli-s^(-1)"
--- Area = [ (centi- m) ^ (+[1+ 1 ] / 1) ]
+-- "s^(-1)"
+-- Area = [ (m) ^ (+[1+ 1 ] / 1) ]
 -- >> show Area
--- "centi-m^(2)"
--- idk  = [ (atto- cd) ^ ( 0ℚ ) ]
+-- "m^(2)"
+-- idk  = [ (cd) ^ ( 0ℚ ) ]
 -- >> show idk
 -- " ^(0)"
---idk2 = [ (giga- g)  ^ ( -[1+ 8 ] / 2) ]
+--idk2 = [ (g)  ^ ( -[1+ 8 ] / 2) ]
 -- >> show idk2
--- "giga-g^(-9/2)"
+-- "g^(-9/2)"
 

@@ -29,7 +29,7 @@ pq-string = PQshow pq1
 -- evaluate tab
 -- Ctrl+c + Ctrl+n
 -- >> pq-string
--- "-5/8  [m^(1) kilo-g^(1) s^(-2) ]"
+-- "-5/8  [m^(1) g^(1) s^(-2) ]"
 
 ----------------
 -- EQUALITIES --
