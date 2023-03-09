@@ -6,7 +6,7 @@ open import Data.Rational as ℚ
 open import Quantities.Units.Composed.Examples
 open import Data.Integer
 open import Data.Rational.Unnormalised.Base as ℚᵘ using (ℚᵘ; mkℚᵘ; _≢0)
-open import Relation.Binary.PropositionalEquality
+open import Relation.Binary.PropositionalEquality as EQ
   using (_≡_; _≢_; refl; subst; cong; cong₂; module ≡-Reasoning)
 open ≡-Reasoning
 open import Data.Bool.Base
@@ -15,78 +15,167 @@ import Data.Integer.DivMod as ℤ
 open import Data.Integer.Base as ℤ using (ℤ; +_; +0; -[1+_])
 open import Relation.Nullary.Decidable using (True)
 
+import Data.Integer.DivMod as ℤ
+open import Data.Rational.Unnormalised.Base as ℚᵘ using (ℚᵘ; mkℚᵘ; _≢0)
+
+open import Data.Vec.Base
+open import Data.Nat.Base
+
 ------------------------------------------------------------------------
 -- - - - - - - - - - PHYSICAL QUANTITY (PQ) UNIT TYPE - - - - - - - - --
 ------------------------------------------------------------------------
+
+-- Quick constructor for 1-dimensional vectors : scalar
+[[_]] : (q : ℚ) → Vec ℚ (ℕ.suc zero)
+[[_]] q = (q ∷ [])
+
+-- Quick constructor for 2-dimensional vectors
+[[_,_]] : (q1 q2 : ℚ) → Vec ℚ (ℕ.suc (ℕ.suc zero))
+[[_,_]] q1 q2 = q1 ∷ (q2 ∷ [])
+
+-- Quick constructor for 3-dimensional vectors
+[[_,_,_]] : (q1 q2 q3 : ℚ) → Vec ℚ (ℕ.suc (ℕ.suc (ℕ.suc zero)))
+[[_,_,_]] q1 q2 q3 = q1 ∷ (q2 ∷ (q3 ∷ []))
+
+-- Quick constructor for 4-dimensional vectors
+[[_,_,_,_]] : (q1 q2 q3 q4 : ℚ) → Vec ℚ (ℕ.suc (ℕ.suc (ℕ.suc (ℕ.suc zero))))
+[[_,_,_,_]] q1 q2 q3 q4 = q1 ∷ (q2 ∷ (q3 ∷ (q4 ∷ [])))
+
 record PQ : Set where
   constructor conPQ
   field
-    number    : ℚ
-    dimension : 𝕌s.𝕌s
+    dim    : ℕ
+    vector : Vec ℚ dim
+    units  : 𝕌s.𝕌s
 
 -- Constructor for a Physical Quantity Type:
--- Example:
---  a-force = 1ℚ ×[ [ (kilo- g) ^ 1ℚ ] · ( [ m ^ 1ℚ ] · ([ s ^ ( -[1+ 1 ] / 1 ) ] · I) ) ]
---    or
---  (first you define newton)
---  newton = [ (kilo- g) ^ 1ℚ ] · ( [ m ^ 1ℚ ] · ([ s ^ ( -[1+ 1 ] / 1 ) ] · I) )
---  (then we use the constructor)
---  another-force = 1ℚ ×[ newton ]
---  which is easier to read
-_×[_] : (number : ℚ) (dim : 𝕌s) → PQ
-_×[_] number dim = conPQ number (𝕌s.𝕌s-simplify dim)
+_×[_] : {dim : ℕ} (vector : Vec ℚ dim) (units : 𝕌s) → PQ
+_×[_] {dim} vector units = conPQ dim vector (𝕌s.𝕌s-simplify units)
 
--- Takes two Physical Quantities. It returns
---  > ⊥ if the two dimensions are NOT the same
---  > ⊤ if the two dimensions are the same
-same-dimension : PQ → PQ → Set
-same-dimension q1 q2 with PQ.dimension q1 | PQ.dimension q2
-...| dim1 | dim2 = T (dim1 𝕌≡ᵇ dim2)
-  where
-    _𝕌≡ᵇ_ : 𝕌s → 𝕌s → Bool
-    dim1 𝕌≡ᵇ dim2 with ÷-merge dim1 dim2
-    ...| I = true
-    ...| _ = false
+vector1   = [[ 1ℚ , 0ℚ , 0ℚ ]]
+quantity1 = vector1 ×[ newton ]
 
+vector2   = [[ 1ℚ , 1ℚ , 1ℚ ]]
+quantity2 = vector2 ×[ newton ]
+
+vector3   = [[ 0ℚ , 1ℚ , 0ℚ ]]
+quantity3 = vector3 ×[ volume ]
+      
 --------------------------------------------------
 -- - - - - - - - - - OPERATIONS - - - - - - - - --
 --------------------------------------------------
 
--- 1. MULTIPLICATION BETWEEN PQ
--- Multiply two PQ quantities, merge the two dimensions
-_PQ×_ : (q1 : PQ) → (q2 : PQ) → PQ
-(conPQ n1 d1) PQ× (conPQ n2 d2) = conPQ (n1 ℚ.* n2) (merge d1 d2)
+-------------- Helping functions  ----------------
+vector-add : {n : ℕ} → (vec1 : Vec ℚ n) → (vec2 : Vec ℚ n) → Vec ℚ n
+vector-add [] [] = []
+vector-add {n} (u ∷ U) (v ∷ V) = (u ℚ.+ v) ∷ (vector-add U V)
 
--- 2. INVERSION OF A PQ
--- Apply 1/_ to the number part, multiply with (-1) the exponents of the
--- dimensions
-PQ1/_ : (q : PQ) →  .{n≢0 : ℤ.∣ ℚ.numerator (PQ.number q) ∣ ≢0} → PQ
-PQ1/_ q {n≢0} with (1/ (PQ.number q)) {n≢0}
-...| 1/number = conPQ 1/number (PQ.dimension q 𝕌s* (-[1+ 0 ] / 1) )
+vector-sub : {n : ℕ} → (vec1 : Vec ℚ n) → (vec2 : Vec ℚ n) → Vec ℚ n
+vector-sub [] [] = []
+vector-sub {n} (u ∷ U) (v ∷ V) = (u ℚ.- v) ∷ (vector-sub U V)
 
--- 3. DIVISION BETWEEN PQ
--- Multiply the first PQ with the inverse of the second PQ
-_PQ÷_ : (q1 : PQ) → (q2 : PQ) →  .{n≢0 : ℤ.∣ ℚ.numerator (PQ.number q2) ∣ ≢0} → PQ
-_PQ÷_ q1 q2 {n≢0} with PQ1/_ q2 {n≢0}
-...| 1/q2 = q1 PQ× 1/q2
+vector-mult : {n m : ℕ} → (vec1 : Vec ℚ n) → (vec2 : Vec ℚ m) → {n ≡ m} → Vec ℚ n
+vector-mult [] [] = []
+vector-mult {n} {m} (u ∷ U) (v ∷ V) {p} = (u ℚ.* v) ∷ (vector-mult U V {cong Data.Nat.Base.pred ( p )})
 
--- 4. ADDITION BETWEEN PQ
--- Add two PQ together, assuming the two PQ have the same dimension
-_PQ+_ : (q1 : PQ) (q2 : PQ) → .{q1≡q2 : same-dimension q1 q2} → PQ
-_PQ+_ q1 q2 = conPQ ((PQ.number q1) ℚ.+ (PQ.number q2)) (PQ.dimension q1)
+--------------------------------------------------
 
--- 5. SUBTRACTION BETWEEN PQ
--- Subtract the two PQ, assuming the two PQ have the same dimension
-_PQ-_ : (q1 : PQ) (q2 : PQ) → .{q1≡q2 : same-dimension q1 q2} → PQ
-_PQ-_ q1 q2 = conPQ ((PQ.number q1) ℚ.- (PQ.number q2)) (PQ.dimension q1)
+--------------------------------------------------
+-- OPERATIONS BETWEEN SCALARS --------------------
+--------------------------------------------------
 
--- 6. Multiplication with a number
--- Multiply a PQ with a number
-_ℚPQ×_ : (pq : PQ) (q : ℚ) → PQ
-pq ℚPQ× q = conPQ ((PQ.number pq) ℚ.* q) (PQ.dimension pq)
+-- SCALAR-SCALAR MULTIPLICATION
+--   As certificates, it is required that the two physical quantities are
+--   indeed scalars
+_SC×_ : (pq1 pq2 : PQ) → {(PQ.dim pq1) ≡ (ℕ.suc zero)} →  {(PQ.dim pq2) ≡ (ℕ.suc zero)} → PQ
+_SC×_ pq1 pq2 {p1} {p2} with EQ.trans p2 (EQ.sym p1)
+...| eq = _×[_] (vector-mult (PQ.vector pq1) (PQ.vector pq2) {EQ.sym eq}) (𝕌s.merge (PQ.units pq1) (PQ.units pq2))
 
--- 7. Division with a number
--- DIvide a PQ with a number
-_ℚPQ÷_ : (pq : PQ) → (q : ℚ) → .{n≢0 : ℤ.∣ ℚ.numerator q ∣ ≢0} → PQ
-_ℚPQ÷_ pq q {n≢0} with ℚ.1/_ q {n≢0}
-...| 1/q = conPQ ((PQ.number pq) ℚ.* 1/q) (PQ.dimension pq)
+-- Set of certificates that a given vector of rational
+-- does NOT containt 0ℚ in it.
+-- it is required when performing the inversion of a scalar
+data 0∉Vec : {n : ℕ} → (Vec ℚ n) → Set where
+  trivial : 0∉Vec []
+  step    : {n : ℕ} → {V : Vec ℚ n} → {q : ℚ} → (ℤ.∣ ↥ q ∣ ≢0) → 0∉Vec V → 0∉Vec (q ∷ V)
+
+-- SCALAR INVERSION
+--   Apply ^(-1) to a scalar, inverting the physical units
+--   aswell.
+--   It is required that the physical quantity is both a scalar (dim = 1)
+--   and that does not have 0 in its components (which is just one)
+SC-inv : (pq : PQ) → {(PQ.dim pq) ≡ (ℕ.suc zero)} → {0∉Vec (PQ.vector pq)} → PQ
+SC-inv pq {p1} {p2} = _×[_] (vec-inv (PQ.vector pq) p2) ((PQ.units pq) 𝕌s.𝕌s* (-[1+ 0 ] / 1))
+  where
+    vec-inv : {n : ℕ} → (vec : Vec ℚ n) → (0∉Vec vec) → Vec ℚ n
+    vec-inv [] p = []
+    vec-inv (v ∷ V) (step p1 p2) = ((ℚ.1/ v) {p1}) ∷ (vec-inv V p2)
+
+-- SCALAR DIVISION
+--   Divide a scalar to another scalar. It is required that both quantities
+--   are scalars and that the second scalar can be inverted
+_SC÷_ : (pq1 pq2 : PQ) → {(PQ.dim pq1) ≡ (ℕ.suc zero)} →  {(PQ.dim pq2) ≡ (ℕ.suc zero)} → {0∉Vec (PQ.vector pq2)} → PQ
+_SC÷_ pq1 pq2 {p1} {p2} {p3} = _SC×_ pq1 (SC-inv pq2 {p2} {p3}) {p1} {p2}
+
+--------------------------------------------------
+-- VECTORIAL AND SCALAR OPERATIONS ---------------
+--------------------------------------------------
+
+-- NORM SQUARED
+--   Computers the norm squared of a the vector of
+--   a quantity.
+--   (The norm cannot be computed without irrational numbers)
+PQ-norm² : (pq : PQ) → ℚ
+PQ-norm² pq with PQ.vector pq
+...| vec = vec-norm² vec
+  where
+    vec-norm² : {n : ℕ} (vec : Vec ℚ n) → ℚ
+    vec-norm² [] = 0ℚ
+    vec-norm² (v ∷ V) = (v ℚ.* v) ℚ.+ (vec-norm² V)
+
+-- ADDITION
+--   addition between physical quantities
+--   You must provide a proof that:
+--   1. the two physical quantities have the same (vectorial) dimension
+--   2. the two physical quantities have the same units
+_PQ+_ : (pq1 pq2 : PQ) → {(PQ.dim pq1) ≡ (PQ.dim pq2)} → {𝕌s.÷-merge (PQ.units pq1) (PQ.units pq2) ≡ I} → PQ
+_PQ+_ pq1 pq2 {refl} with (vector-add (PQ.vector pq1) (PQ.vector pq2))
+...| added-vec = _×[_] {PQ.dim pq1} added-vec (PQ.units pq1)
+
+-- SUBTRACTION
+--   same as addition, but the components will be subtracted
+_PQ-_ : (pq1 pq2 : PQ) → {(PQ.dim pq1) ≡ (PQ.dim pq2)} → {𝕌s.÷-merge (PQ.units pq1) (PQ.units pq2) ≡ I} → PQ
+_PQ-_ pq1 pq2 {refl} with (vector-sub (PQ.vector pq1) (PQ.vector pq2))
+...| subtr-vec = _×[_] {PQ.dim pq1} subtr-vec (PQ.units pq1)
+
+-- SCALAR × QUANTITY OPERATION
+_PQ×_ : (scalar : ℚ) → (pq : PQ) → PQ
+_PQ×_ scalar pq = _×[_] (scalar-times-vec scalar (PQ.vector pq)) (PQ.units pq)
+  where
+    scalar-times-vec : {n : ℕ} → ℚ → Vec ℚ n → Vec ℚ n
+    scalar-times-vec {.zero} s [] = []
+    scalar-times-vec {.(ℕ.suc _)} s (v ∷ V) = (s ℚ.* v) ∷ (scalar-times-vec s V)
+
+--------------------------------------------------
+
+-- Impossible operations:
+-- 1. You cannot add two vectors of different dimensions
+--    (this includes additions between a vector and a scalar)
+-- 2. You cannot just multiply two vectors. You either
+--    scalar multiply them or vector multiply them
+
+----------------------------------------------------------------
+--|   MISSING OPERATIONS     |     WHY THEY ARE MISSING        |
+--|--------------------------|---------------------------------|
+--| 1. Scalar multiplication : cos(theta) is an irrational     |
+--|                          | number                          |
+--|--------------------------|---------------------------------|
+--| 2. Vector multiplication : sin(theta) is an irrational     |
+--|                          | number                          |
+--|--------------------------|---------------------------------|
+--| 3. Conversion between    | conversion between derived      |
+--|    derived units         : units may result in irratiional |
+--|    eg: gram -> kilogram  | numbers when the starting expo- |
+--|                          | nent is rational                |
+--|                          | eg: kg^¾ -> ? g^¾               |
+--|                          |          -> (1000)^¾ g^¾        |
+--|--------------------------|---------------------------------|
