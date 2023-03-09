@@ -13,81 +13,103 @@ open import Quantities.Units.Composed.Examples
 -- Import helping modules
 open import Data.Rational
 open import Data.Integer
+open import Data.Vec
+open import Relation.Binary.PropositionalEquality as EQ
+  using (_≡_; _≢_; refl; subst; cong; cong₂; module ≡-Reasoning)
+open import Agda.Builtin.Unit
 
 ---------------------------------------
 -- - PHYSICAL QUANTITIES TYPE (PQ) - --
 ---------------------------------------
--- How to construct a Physical Type
-number = -[1+ 19 ] / 32       -- -20/32 newton
-pq1    = number ×[ newton ]
---                   ↑
---                 Units (𝕌s)
 
--- The quantity can also be shown
-pq-string = PQshow pq1
--- which can be displayed by typing pq-string in the
--- evaluate tab
+-- CREATE A PHYSICAL QUANTITY
+--   A vector and a Units type must be declared
+--   with the following constructor _×[_]
+1D-quantity = (1ℚ ∷ []) ×[ volume ]
+
+-- The quantity can be shown using the PQshow function
+str1 = PQshow 1D-quantity
+
+-- Entering in Evaluation mode (Ctrl+c + Ctrl+n)
+-- >> str1
+-- "(1, )  [m^(3) ]"
+
+-- Another example, let us define the gravitational acceleration
+g-acc = (0ℚ ∷ (( -[1+ 90 ] / 10 ) ∷ (0ℚ ∷ []))) ×[ acceleration ]
+str-g = PQshow g-acc
+
 -- Ctrl+c + Ctrl+n
--- >> pq-string
--- "-5/8  [m^(1) g^(1) s^(-2) ]"
+-- >> str-g
+-- "(0, -91/10, 0, )  [m^(1) s^(-2) ]"
 
-----------------
--- EQUALITIES --
-----------------
--- A function can tell if two physical quantities can be
--- added together (when they share the same dimensions)
+-- For 1-, 2-, 3-, and 4-dimensional quantities there is a shortcut
+-- constructor
+mass        = [[ 1ℚ ]]                 ×[ ([ g ^ 1ℚ ] · I) ] 
+2d-speed    = [[ +[1+ 3 ] / 1 , 1ℚ ]]  ×[ speed ]
+3d-force    = [[ 1ℚ , 1ℚ , 1ℚ ]]      ×[ newton ]
+4d-density? = [[ 1ℚ , 0ℚ , 1ℚ , 0ℚ ]] ×[ density ]
 
-pq2 = 1ℚ ×[ pascal ]              -- 1 pascal
-pq3 = (-[1+ 0 ] / 12) ×[ pascal ] -- -1/12 pascal
--- Takes two Physical Quantities. It returns
---  > ⊥ if the two dimensions are NOT the same
---  > ⊤ if the two dimensions are the same
-check1 = same-dimension pq2 pq3
-check2 = same-dimension pq1 pq2
+-- As for now there is no check if a quantity makes physical sense.
+-- Hence, it is possible to create a vector that represents a density
+
+---------------------------------------
+-- - ---OPERATIONS FOR SCALARS --- - --
+---------------------------------------
+
+-- MULTIPLICATIONS BETWEEN SCALARS
+
+an-area = [[ -[1+ 1 ] / 3 ]] ×[ area ]
+something = mass SC× an-area
+
 -- Ctrl+c + Ctrl+n
--- >> check1
---    Agda.Builtin.Unit.⊤
--- >> check2
---    Data.Empty.⊥
+-- >> PQshow something
+-- "(-2/3, )  [m^(2) g^(1) ]"
 
-----------------
--- OPERATIONS --
-----------------
-a-length = (+[1+ 4 ] / 3)  ×[ [ meter ^ 1ℚ ]  · I ]
-a-time   = (+[1+ 29 ] / 1) ×[ [ second ^ 1ℚ ] · I ]
+-- DIVISIONS BETWEEN SCALARS
 
--- 1. MUTLIPLICATION BETWEEN PQ
-a-length×time = a-length PQ× a-time
--- >> PQshow a-length×time
---    "50  [s^(1) m^(1) ]"
+something-else = _SC÷_ mass an-area {refl} {refl} {step Agda.Builtin.Unit.tt trivial}
 
--- 2. INVERSION OF A PQ
-a-frequency = PQ1/ a-time
--- >> PQshow a-frequency
---    "1/30  [s^(-1) ]"
+-- Ctrl+c + Ctrl+n
+-- >> PQshow something-else
+-- "(-3/2, )  [m^(-2) g^(1) ]"
 
--- 3. DIVISION BETWEEN PQ
-a-speed = a-length PQ÷ a-time
--- >> PQshow a-speed
---    "1/18  [s^(-1) m^(1) ]"
+---------------------------------------
+-- - ---OPERATIONS FOR VECTORS --- - --
+---------------------------------------
 
--- 4. ADDITION BETWEEN PQ
-another-time =  1ℚ ×[ [ second ^ 1ℚ ] · I ]
+-- COMPUTE NORM²
+a-norm    = PQ-norm² 4d-density?
 
-time-summed = a-time PQ+ another-time
--- >> PQshow time-summed
---    "31  [s^(1) ]"
+-- ADDITION BETWEEN VECTORS
+--   the two vectors must have same dimensionality and units
+other-3dforce = [[ 1ℚ , -[1+ 0 ] / 1 , 1ℚ ]]      ×[ newton ]
 
--- 5. SUBTRACTION BETWEEN PQ
-time-subtracted = another-time PQ- a-time
--- >> PQshow time-subtracted
---    "-29  [s^(1) ]"
+sum1 = _PQ+_ 3d-force other-3dforce {refl} {refl}
 
--- 6. Multiplication of a PQ with a number
-a-speed×3 = a-speed ℚPQ× (+[1+ 2 ] / 1)
--- >> PQshow a-speed×3
---    "1/6  [s^(-1) m^(1) ]"
+-- Ctrl+c + Ctrl+n
+-- >> PQshow sum1
+-- "(2, 0, 2, )  [m^(1) g^(1) s^(-2) ]"
 
-a-speed×3÷2 = a-speed×3 ℚPQ÷ (+[1+ 1 ] / 1)
--- >> PQshow a-speed×3÷2
---    "1/12  [s^(-1) m^(1) ]"
+-- SUBTRACTION BETWEEN VECTORS
+--   the two vectors must have same dimensionality and units
+diff1 = _PQ-_ 3d-force other-3dforce {refl} {refl}
+
+-- Ctrl+c + Ctrl+n
+-- >> PWshow diff1
+-- "(0, 2, 0, )  [m^(1) g^(1) s^(-2) ]"
+
+-- NUMBER-VECTOR MULTIPLICATION
+
+less-force = (-[1+ 0 ] / 11) PQnum× diff1
+
+-- Ctrl+c + Ctrl+n
+-- >> PQshow less-force
+-- "(0, -2/11, 0, )  [m^(1) g^(1) s^(-2) ]"
+
+-- SCALAR-VECTOR MULTIPLICATION
+
+mass-x-force = mass PQ× diff1
+
+-- Ctrl+c + Ctrl+n
+-- >> PQshow mass-x-force
+-- "(0, 2, 0, )  [m^(1) g^(2) s^(-2) ]"

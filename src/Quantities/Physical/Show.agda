@@ -34,11 +34,3 @@ show-vec (v ∷ V) with denominator-is-one v
 
 show : (pq : PQ) → String
 show pq = "(" ++ (show-vec (PQ.vector pq)) ++ ")  [" ++ (show𝕌s (PQ.units pq)) ++ "]"
-
-
-str1 = show quantity1
-str2 = show quantity2
-str3 = show quantity3
-
-str12 = show q12
-
