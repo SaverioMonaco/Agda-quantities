@@ -147,16 +147,22 @@ _PQ-_ : (pq1 pq2 : PQ) → {(PQ.dim pq1) ≡ (PQ.dim pq2)} → {𝕌s.÷-merge (
 _PQ-_ pq1 pq2 {refl} with (vector-sub (PQ.vector pq1) (PQ.vector pq2))
 ...| subtr-vec = _×[_] {PQ.dim pq1} subtr-vec (PQ.units pq1)
 
--- SCALAR × QUANTITY OPERATION
-_PQ×_ : (scalar : ℚ) → (pq : PQ) → PQ
-_PQ×_ scalar pq = _×[_] (scalar-times-vec scalar (PQ.vector pq)) (PQ.units pq)
+-- NUMBER × QUANTITY OPERATION
+_PQnum×_ : (num : ℚ) → (pq : PQ) → PQ
+_PQnum×_ num pq = _×[_] (scalar-times-vec num (PQ.vector pq)) (PQ.units pq)
   where
     scalar-times-vec : {n : ℕ} → ℚ → Vec ℚ n → Vec ℚ n
     scalar-times-vec {.zero} s [] = []
     scalar-times-vec {.(ℕ.suc _)} s (v ∷ V) = (s ℚ.* v) ∷ (scalar-times-vec s V)
 
---------------------------------------------------
+-- SCALAR × QUANTITY OPERATION
+_PQ×_ : (pq1 pq2 : PQ) → {(PQ.dim pq1) ≡ (ℕ.suc zero)} → PQ
+_PQ×_ pq1 pq2 {p} = _×[_] (PQ.vector ((PQ-to-q pq1 {p}) PQnum× pq2)) (merge (PQ.units pq1) (PQ.units pq2))
+  where
+    PQ-to-q : (pq : PQ) → {(PQ.dim pq) ≡ (ℕ.suc zero)} → ℚ
+    PQ-to-q (conPQ (ℕ.suc zero) (x ∷ []) units) {p} = x
 
+--------------------------------------------------
 -- Impossible operations:
 -- 1. You cannot add two vectors of different dimensions
 --    (this includes additions between a vector and a scalar)
