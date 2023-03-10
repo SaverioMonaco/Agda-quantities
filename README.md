@@ -2,17 +2,16 @@
 Type-safe physical computations in Agda.
 
 ---
+## Physical Quantity as Agda type:
+![scheme](/imgs/schema.svg)
+
+---
 ## Tutorial:
 Check out the two `.agda` files in `/src/Quantities/Manuals/` on how to use this library:
 - [Units.agda](/src/Quantities/Manuals/Units.agda) : with examples on how to use the Units type.
 - [Physical.agda](/src/Quantities/Manuals/Physical.agda) : with examples on how to use the Physical Quantities (PQ) type.
 
 ---
-## Physical Quantity as Agda type:
-![scheme](https://raw.githubusercontent.com/SaverioMonaco/Agda-quantities/main/imgs/pq-scheme.svg)
-
----
-
 ## How to run it:
 This library depends on the [Agda-stdlib](https://github.com/agda/agda-stdlib), in particular it was tested with `agda-stdlib-1.7.1`.
 

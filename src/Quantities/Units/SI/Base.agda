@@ -25,13 +25,6 @@ open ≡-Reasoning
 ------------------------------------
 -- - - - - BASE-UNIT TYPE - - - - --
 ------------------------------------
-
-record Prefix : Set where
-  constructor c-Prefix
-  field
-    str   : String
-    10pow : ℤ
-
 record b𝕌 : Set where
   constructor c-b𝕌
   field
