@@ -27,7 +27,7 @@ Quantities
 ```
 5. If everything has been linked correctly, you should be able to use the Quantities library anywhere, to test it load the following line in a `.agda` file:
 ```agda
-open import Quantities.Units
+open import Quantities.Quantities
 ```
 
 
