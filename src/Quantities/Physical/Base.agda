@@ -88,8 +88,7 @@ vector-mult {n} {m} (u ∷ U) (v ∷ V) {p} = (u ℚ.* v) ∷ (vector-mult U V {
 --   As certificates, it is required that the two physical quantities are
 --   indeed scalars
 _SC×_ : (pq1 pq2 : PQ) → {(PQ.dim pq1) ≡ (ℕ.suc zero)} →  {(PQ.dim pq2) ≡ (ℕ.suc zero)} → PQ
-_SC×_ pq1 pq2 {p1} {p2} with EQ.trans p2 (EQ.sym p1)
-...| eq = _×[_] (vector-mult (PQ.vector pq1) (PQ.vector pq2) {EQ.sym eq}) (𝕌s.merge (PQ.units pq1) (PQ.units pq2))
+_SC×_ pq1 pq2 {p1} {p2} =  _×[_] (vector-mult (PQ.vector pq1) (PQ.vector pq2) {EQ.sym (EQ.trans p2 (EQ.sym p1))}) (𝕌s.merge (PQ.units pq1) (PQ.units pq2))
 
 -- Set of certificates that a given vector of rational
 -- does NOT containt 0ℚ in it.
@@ -125,8 +124,7 @@ _SC÷_ pq1 pq2 {p1} {p2} {p3} = _SC×_ pq1 (SC-inv pq2 {p2} {p3}) {p1} {p2}
 --   a quantity.
 --   (The norm cannot be computed without irrational numbers)
 PQ-norm² : (pq : PQ) → ℚ
-PQ-norm² pq with PQ.vector pq
-...| vec = vec-norm² vec
+PQ-norm² pq = vec-norm² (PQ.vector pq)
   where
     vec-norm² : {n : ℕ} (vec : Vec ℚ n) → ℚ
     vec-norm² [] = 0ℚ
@@ -138,14 +136,12 @@ PQ-norm² pq with PQ.vector pq
 --   1. the two physical quantities have the same (vectorial) dimension
 --   2. the two physical quantities have the same units
 _PQ+_ : (pq1 pq2 : PQ) → {(PQ.dim pq1) ≡ (PQ.dim pq2)} → {𝕌s.÷-merge (PQ.units pq1) (PQ.units pq2) ≡ I} → PQ
-_PQ+_ pq1 pq2 {refl} with (vector-add (PQ.vector pq1) (PQ.vector pq2))
-...| added-vec = _×[_] {PQ.dim pq1} added-vec (PQ.units pq1)
+_PQ+_ pq1 pq2 {refl} = _×[_] {PQ.dim pq1} (vector-add (PQ.vector pq1) (PQ.vector pq2)) (PQ.units pq1)
 
 -- SUBTRACTION
 --   same as addition, but the components will be subtracted
 _PQ-_ : (pq1 pq2 : PQ) → {(PQ.dim pq1) ≡ (PQ.dim pq2)} → {𝕌s.÷-merge (PQ.units pq1) (PQ.units pq2) ≡ I} → PQ
-_PQ-_ pq1 pq2 {refl} with (vector-sub (PQ.vector pq1) (PQ.vector pq2))
-...| subtr-vec = _×[_] {PQ.dim pq1} subtr-vec (PQ.units pq1)
+_PQ-_ pq1 pq2 {refl} = _×[_] {PQ.dim pq1} (vector-sub (PQ.vector pq1) (PQ.vector pq2)) (PQ.units pq1)
 
 -- NUMBER × QUANTITY OPERATION
 _PQnum×_ : (num : ℚ) → (pq : PQ) → PQ

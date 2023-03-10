@@ -15,13 +15,12 @@ show : (u : 𝕌) → String
 show u with denominator-is-one (𝕌.expo u)
   where
     denominator-is-one : (q : ℚ) → Bool
-    denominator-is-one q with (ℕisone (ℚ.denominatorℕ q) )
+    denominator-is-one q = (ℕisone (ℚ.denominatorℕ q) )
       where
         ℕisone : (n : ℕ) → Bool
         ℕisone zero          = false
         ℕisone (suc zero)    = true
         ℕisone (suc (suc n)) = false
-    ...| bool = bool
 ...| true  = b𝕌.str (𝕌.base u)  ++ "^(" ++ showℤ (ℚ.numerator (𝕌.expo u) ) ++  ")"
 ...| false = b𝕌.str (𝕌.base u)  ++ "^(" ++ showℤ (ℚ.numerator (𝕌.expo u) ) ++  "/" ++ showℕ (ℚ.denominatorℕ (𝕌.expo u) ) ++ ")"
 

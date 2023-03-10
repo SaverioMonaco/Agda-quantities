@@ -92,8 +92,7 @@ U 𝕌s* q = 𝕌s-simplify (exp-multiplication U q)
 
 -- Divide every exponent in 𝕌s by a value q : ℚ {q ≠ 0}
 _𝕌s÷_ : (U : 𝕌s) → (q : ℚ) → .{n≢0 : ℤ.∣ ↥ q ∣ ≢0} → 𝕌s
-_𝕌s÷_ U q {n≢0}  with (ℚ1/ q) {n≢0}
-...| 1/q = U 𝕌s* 1/q
+_𝕌s÷_ U q {n≢0} = U 𝕌s* (ℚ1/ q) {n≢0}
 
 -- Apply inversion of every exponent in 𝕌s
 𝕌s-inv : (U : 𝕌s) → 𝕌s

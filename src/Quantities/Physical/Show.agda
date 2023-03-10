@@ -22,13 +22,12 @@ show-vec [] = ""
 show-vec (v ∷ V) with denominator-is-one v
   where
     denominator-is-one : (q : ℚ) → Bool
-    denominator-is-one q with (ℕisone (ℚ.denominatorℕ q) )
+    denominator-is-one q = (ℕisone (ℚ.denominatorℕ q) )
       where
         ℕisone : (n : ℕ) → Bool
         ℕisone zero          = false
         ℕisone (suc zero)    = true
         ℕisone (suc (suc n)) = false
-    ...| bool = bool
 ...| false = (ℚshow v) ++ ", " ++(show-vec V)
 ...| true  = ℤshow (ℚ.numerator v) ++ ", " ++ (show-vec V)
 

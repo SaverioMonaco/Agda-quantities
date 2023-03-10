@@ -90,14 +90,13 @@ postulate 𝕌pos1 : (U : 𝕌) → ℤ.∣ ↥ 𝕌.expo U ∣ ≢0
 -- true:  if the base is the same
 -- false: otherwise
 𝕌sim : (u v : 𝕌) → Bool
-𝕌sim u v with (ℕeq (b𝕌.id-num (𝕌.base u)) (b𝕌.id-num (𝕌.base v)))
+𝕌sim u v = (ℕeq (b𝕌.id-num (𝕌.base u)) (b𝕌.id-num (𝕌.base v)))
   where
     ℕeq : (n m : ℕ) → Bool
     ℕeq zero zero             = true
     ℕeq zero (ℕ.suc m)       = false
     ℕeq (ℕ.suc n) zero       = false
     ℕeq (ℕ.suc n) (ℕ.suc m) = ℕeq n m
-...| bool = bool
 
 -- true:  if both base and exponent are the same
 -- false: otherwise
