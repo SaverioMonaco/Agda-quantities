@@ -58,8 +58,8 @@ momentum  = [ g ^ 1ℚ ] · ( [ m ^ 1ℚ ] · ( [ s ^ -[1+ 0 ] / 1 ] · I ))
 newton    = [ g ^ 1ℚ ] · ([ m ^ 1ℚ ] · ([ s ^ -[1+ 1 ] / 1 ] · I))
 frequency = [ s ^ -[1+ 0 ] / 1 ]
 
-lemma : (frequency · momentum) ≡ᵤ newton
-lemma = permTrans lemma-helper-1 (permSymm lemma-helper-2)
+lemma-momentum×newton : (frequency · momentum) ≡ᵤ newton
+lemma-momentum×newton = permTrans lemma-helper-1 (permSymm lemma-helper-2)
   where
     lemma-helper-1 : (frequency · momentum) ≡ᵤ ([ s ^ -[1+ 1 ] / 1 ] · ( [ m ^ 1ℚ ] · ( [ g ^ 1ℚ ] · I )))
     lemma-helper-1 = permRev2 (permIns {frequency} {momentum})
