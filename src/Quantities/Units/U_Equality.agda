@@ -6,6 +6,8 @@ open import Data.Nat
 open import Data.Integer
 open import Data.Rational
 
+-- Append does add an element to the right
+-- "·" prepends it
 U-append : 𝕌s → 𝕌 → 𝕌s
 U-append I u = u · I
 U-append (x · us) u = x · (U-append us u)
@@ -47,6 +49,7 @@ data _≡ᵤ_ : 𝕌s → 𝕌s → Set where
   -- Congruence rule
   permCong  : {f : 𝕌s → 𝕌s} {us1 us2 : 𝕌s} → us1 ≡ᵤ us2 → (f us1) ≡ᵤ (f us2)
 
+
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 -- EXAMPLE : MOMENTUM × FREQUENCY ≡ᵤ NEWTON --
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
@@ -55,12 +58,19 @@ momentum  = [ g ^ 1ℚ ] · ( [ m ^ 1ℚ ] · ( [ s ^ -[1+ 0 ] / 1 ] · I ))
 newton    = [ g ^ 1ℚ ] · ([ m ^ 1ℚ ] · ([ s ^ -[1+ 1 ] / 1 ] · I))
 frequency = [ s ^ -[1+ 0 ] / 1 ]
 
-lemma-h1 : (frequency · momentum) ≡ᵤ ([ s ^ -[1+ 1 ] / 1 ] · ( [ m ^ 1ℚ ] · ( [ g ^ 1ℚ ] · I )))
-lemma-h1 = permRev2 (permIns {frequency} {momentum})
-
-lemma-h2 : newton ≡ᵤ ([ s ^ -[1+ 1 ] / 1 ] · ( [ m ^ 1ℚ ] · ( [ g ^ 1ℚ ] · I )))
-lemma-h2 = permRev {newton}
-
 lemma : (frequency · momentum) ≡ᵤ newton
-lemma = permTrans lemma-h1 (permSymm lemma-h2)
+lemma = permTrans lemma-helper-1 (permSymm lemma-helper-2)
+  where
+    lemma-helper-1 : (frequency · momentum) ≡ᵤ ([ s ^ -[1+ 1 ] / 1 ] · ( [ m ^ 1ℚ ] · ( [ g ^ 1ℚ ] · I )))
+    lemma-helper-1 = permRev2 (permIns {frequency} {momentum})
 
+    lemma-helper-2 : newton ≡ᵤ ([ s ^ -[1+ 1 ] / 1 ] · ( [ m ^ 1ℚ ] · ( [ g ^ 1ℚ ] · I )))
+    lemma-helper-2 = permRev {newton}
+    
+open import Relation.Binary.PropositionalEquality
+
+-- Two equal (≡) units type are equal in a ≡ᵤ way
+≡→≡ᵤ : {us1 us2 : 𝕌s} → us1 ≡ us2 → us1 ≡ᵤ us2
+≡→≡ᵤ refl = permRefl
+
+-- The opposite is not granted
